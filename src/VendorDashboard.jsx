@@ -3,7 +3,7 @@ import VendorDashboard from "./VendorDashboard";
 
 function App() {
   return (
-    <div>
+    <div className="App">
       <VendorDashboard />
     </div>
   );

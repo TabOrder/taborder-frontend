@@ -1,0 +1,171 @@
+import React, { useEffect, useState } from "react";
+
+export default function VendorDashboard() {
+  const [products, setProducts] = useState([]);
+  const [vendorId, setVendorId] = useState(1); // Default vendor
+
+  useEffect(() => {
+    fetch(`http://127.0.0.1:80/vendor/${vendorId}/products`)
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
+      .catch((err) => console.error("Failed to fetch products:", err));
+  }, [vendorId]);
+
+  const handleEdit = (product) => {
+    alert(`Edit product: ${product.name}`);
+    // Coming soon: Modal or inline form
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      fetch(`http://127.0.0.1:80/products/${id}`, {
+        method: "DELETE",
+      })
+        .then((res) => res.json())
+        .then(() => {
+          setProducts((prev) => prev.filter((p) => p.id !== id));
+        })
+        .catch((err) => console.error("Delete failed", err));
+    }
+  };
+
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const name = formData.get("name");
+    const category = formData.get("category");
+    const price = parseFloat(formData.get("price"));
+
+    const newProduct = {
+      name,
+      category,
+      price,
+      vendor_id: parseInt(vendorId),
+    };
+
+    fetch("http://127.0.0.1:80/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newProduct),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.id) {
+          setProducts((prev) => [...prev, { ...newProduct, id: data.id }]);
+          e.target.reset();
+          alert("✅ Product added successfully!");
+        } else {
+          alert("⚠️ Product not added. Try again.");
+        }
+      })
+      .catch((err) => {
+        console.error("Add failed", err);
+        alert("❌ Server error. Please try again.");
+      });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-6">
+          📦 Vendor Product Dashboard
+        </h1>
+
+        <div className="mb-6">
+          <label
+            htmlFor="vendorId"
+            className="block mb-2 text-sm font-medium text-gray-700"
+          >
+            Vendor ID
+          </label>
+          <input
+            type="number"
+            id="vendorId"
+            value={vendorId}
+            onChange={(e) => setVendorId(e.target.value)}
+            className="w-32 border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring focus:border-blue-500"
+          />
+        </div>
+
+        {/* Add Product Form */}
+        <div className="mb-10 border p-4 rounded-xl bg-white shadow">
+          <h2 className="text-lg font-semibold mb-4">➕ Add New Product</h2>
+          <form onSubmit={handleAddProduct}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+              <input
+                name="name"
+                type="text"
+                placeholder="Product Name"
+                required
+                className="border p-2 rounded"
+              />
+              <input
+                name="category"
+                type="text"
+                placeholder="Category"
+                required
+                className="border p-2 rounded"
+              />
+              <input
+                name="price"
+                type="number"
+                step="0.01"
+                placeholder="Price"
+                required
+                className="border p-2 rounded"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Add Product
+            </button>
+          </form>
+        </div>
+
+        {/* Product List */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white p-4 rounded-2xl shadow hover:shadow-md transition flex flex-col justify-between"
+            >
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {product.name}
+                </h2>
+                <p className="text-sm text-gray-500">{product.category}</p>
+                <p className="text-lg font-bold mt-2 text-blue-600">
+                  R{product.price.toFixed(2)}
+                </p>
+              </div>
+
+              <div className="mt-4 flex gap-2">
+                <button
+                  className="flex-1 px-3 py-2 text-sm font-medium bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200"
+                  onClick={() => handleEdit(product)}
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  className="flex-1 px-3 py-2 text-sm font-medium bg-red-100 text-red-700 rounded hover:bg-red-200"
+                  onClick={() => handleDelete(product.id)}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {products.length === 0 && (
+          <p className="text-center text-gray-500 mt-10">
+            No products found for vendor ID {vendorId}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
