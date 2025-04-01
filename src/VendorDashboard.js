@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 export default function VendorDashboard() {
   const [products, setProducts] = useState([]);
   const [vendorId, setVendorId] = useState(1); // Default vendor
+  const [darkMode, setDarkMode] = useState(false);
+  const [vendorStats, setVendorStats] = useState({});
 
   useEffect(() => {
     fetch(`http://127.0.0.1:80/vendor/${vendorId}/products`)
@@ -11,9 +13,15 @@ export default function VendorDashboard() {
       .catch((err) => console.error("Failed to fetch products:", err));
   }, [vendorId]);
 
+  useEffect(() => {
+    fetch(`http://127.0.0.1:80/vendor/${vendorId}/stats`)
+      .then((res) => res.json())
+      .then((data) => setVendorStats(data))
+      .catch((err) => console.error("Failed to fetch stats:", err));
+  }, [vendorId, products]);
+
   const handleEdit = (product) => {
     alert(`Edit product: ${product.name}`);
-    // Coming soon: Modal or inline form
   };
 
   const handleDelete = (id) => {
@@ -65,17 +73,20 @@ export default function VendorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"} min-h-screen p-6`}>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-6">
-          📦 Vendor Product Dashboard
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">📦 Vendor Product Dashboard</h1>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="bg-gray-300 text-sm px-4 py-1 rounded shadow hover:bg-gray-400"
+          >
+            {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+          </button>
+        </div>
 
         <div className="mb-6">
-          <label
-            htmlFor="vendorId"
-            className="block mb-2 text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="vendorId" className="block mb-2 text-sm font-medium">
             Vendor ID
           </label>
           <input
@@ -85,73 +96,55 @@ export default function VendorDashboard() {
             onChange={(e) => setVendorId(e.target.value)}
             className="w-32 border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring focus:border-blue-500"
           />
+          <button
+            onClick={() => {
+              fetch(`http://127.0.0.1:80/vendor/${vendorId}/products`)
+                .then((res) => res.json())
+                .then((data) => setProducts(data))
+                .catch((err) => console.error("Refresh failed:", err));
+            }}
+            className="ml-4 px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            🔁 Refresh
+          </button>
         </div>
 
-        {/* Add Product Form */}
-        <div className="mb-10 border p-4 rounded-xl bg-white shadow">
+        <div className="mb-6 bg-white dark:bg-gray-800 rounded-xl p-4 shadow">
+          <h2 className="text-lg font-semibold mb-2">📊 Vendor Stats</h2>
+          <ul className="text-sm">
+            <li>Total Products: <strong>{vendorStats.total_products || 0}</strong></li>
+            <li>Estimated Stock Value: <strong>R{vendorStats.total_value || 0}</strong></li>
+          </ul>
+        </div>
+
+        <div className="mb-10 border p-4 rounded-xl bg-white dark:bg-gray-800 shadow">
           <h2 className="text-lg font-semibold mb-4">➕ Add New Product</h2>
           <form onSubmit={handleAddProduct}>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-              <input
-                name="name"
-                type="text"
-                placeholder="Product Name"
-                required
-                className="border p-2 rounded"
-              />
-              <input
-                name="category"
-                type="text"
-                placeholder="Category"
-                required
-                className="border p-2 rounded"
-              />
-              <input
-                name="price"
-                type="number"
-                step="0.01"
-                placeholder="Price"
-                required
-                className="border p-2 rounded"
-              />
+              <input name="name" type="text" placeholder="Product Name" required className="border p-2 rounded" />
+              <input name="category" type="text" placeholder="Category" required className="border p-2 rounded" />
+              <input name="price" type="number" step="0.01" placeholder="Price" required className="border p-2 rounded" />
             </div>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
+            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
               Add Product
             </button>
           </form>
         </div>
 
-        {/* Product List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white p-4 rounded-2xl shadow hover:shadow-md transition flex flex-col justify-between"
-            >
+            <div key={product.id} className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow hover:shadow-md transition flex flex-col justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {product.name}
-                </h2>
-                <p className="text-sm text-gray-500">{product.category}</p>
-                <p className="text-lg font-bold mt-2 text-blue-600">
-                  R{product.price.toFixed(2)}
-                </p>
+                <h2 className="text-xl font-semibold">{product.name}</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{product.category}</p>
+                <p className="text-lg font-bold mt-2 text-blue-600">R{product.price.toFixed(2)}</p>
               </div>
 
               <div className="mt-4 flex gap-2">
-                <button
-                  className="flex-1 px-3 py-2 text-sm font-medium bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200"
-                  onClick={() => handleEdit(product)}
-                >
+                <button className="flex-1 px-3 py-2 text-sm font-medium bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200" onClick={() => handleEdit(product)}>
                   ✏️ Edit
                 </button>
-                <button
-                  className="flex-1 px-3 py-2 text-sm font-medium bg-red-100 text-red-700 rounded hover:bg-red-200"
-                  onClick={() => handleDelete(product.id)}
-                >
+                <button className="flex-1 px-3 py-2 text-sm font-medium bg-red-100 text-red-700 rounded hover:bg-red-200" onClick={() => handleDelete(product.id)}>
                   🗑️ Delete
                 </button>
               </div>
@@ -160,12 +153,13 @@ export default function VendorDashboard() {
         </div>
 
         {products.length === 0 && (
-          <p className="text-center text-gray-500 mt-10">
-            No products found for vendor ID {vendorId}
-          </p>
+          <p className="text-center text-gray-500 mt-10">No products found for vendor ID {vendorId}</p>
         )}
+
+        <footer className="mt-12 text-center text-sm text-gray-500">
+          &copy; {new Date().getFullYear()} TabOrder | Vendor Portal
+        </footer>
       </div>
     </div>
   );
 }
-
