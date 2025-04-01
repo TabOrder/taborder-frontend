@@ -14,7 +14,7 @@ export default function VendorDashboard() {
 
   const handleEdit = (product) => {
     alert(`Edit product: ${product.name}`);
-    // Future modal/edit logic here
+    // Coming soon: modal or inline editing logic
   };
 
   const handleDelete = (id) => {
@@ -99,6 +99,7 @@ export default function VendorDashboard() {
           />
         </div>
 
+        {/* Add Product Form */}
         <div className="mb-10 border p-4 rounded-xl bg-white dark:bg-gray-800 shadow">
           <h2 className="text-lg font-semibold mb-4 flex items-center">
             <span className="text-blue-600 mr-2 text-xl">➕</span> Add New Product
@@ -122,6 +123,7 @@ export default function VendorDashboard() {
           </form>
         </div>
 
+        {/* Product List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {products.map((product) => (
             <div
