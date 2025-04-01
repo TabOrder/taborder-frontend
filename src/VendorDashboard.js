@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 
+const API_BASE_URL = "https://taborder.pythonanywhere.com"; // ✅ Your live backend URL
+
 export default function VendorDashboard() {
   const [products, setProducts] = useState([]);
   const [vendorId, setVendorId] = useState(1); // Default vendor
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:80/vendor/${vendorId}/products`)
+    fetch(`${API_BASE_URL}/vendor/${vendorId}/products`)
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Failed to fetch products:", err));
@@ -14,12 +16,11 @@ export default function VendorDashboard() {
 
   const handleEdit = (product) => {
     alert(`Edit product: ${product.name}`);
-    // Coming soon: modal or inline editing logic
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      fetch(`http://127.0.0.1:80/products/${id}`, {
+      fetch(`${API_BASE_URL}/products/${id}`, {
         method: "DELETE",
       })
         .then((res) => res.json())
@@ -44,7 +45,7 @@ export default function VendorDashboard() {
       vendor_id: parseInt(vendorId),
     };
 
-    fetch("http://127.0.0.1:80/products", {
+    fetch(`${API_BASE_URL}/products`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newProduct),
@@ -99,7 +100,6 @@ export default function VendorDashboard() {
           />
         </div>
 
-        {/* Add Product Form */}
         <div className="mb-10 border p-4 rounded-xl bg-white dark:bg-gray-800 shadow">
           <h2 className="text-lg font-semibold mb-4 flex items-center">
             <span className="text-blue-600 mr-2 text-xl">➕</span> Add New Product
@@ -123,7 +123,6 @@ export default function VendorDashboard() {
           </form>
         </div>
 
-        {/* Product List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {products.map((product) => (
             <div
