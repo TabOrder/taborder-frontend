@@ -1,5 +1,6 @@
 import React from "react";
-import VendorDashboard from "./VendorDashboard";
+import VendorDashboard from "./VendorDashboard.js";
+
 
 function App() {
   return (
