@@ -30,38 +30,32 @@ export default function VendorDashboard() {
     }
   };
 
-  fetch("http://127.0.0.1:80/products", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(newProduct),
-})
-  .then(async (res) => {
-    if (!res.ok) {
-      const error = await res.text();
-      throw new Error(error || "Unknown error");
-    }
-    return res.json();
-  })
-  .then((data) => {
-    if (data.id) {
-      setProducts((prev) => [...prev, { ...newProduct, id: data.id }]);
-      e.target.reset();
-      alert("✅ Product added successfully!");
-    } else {
-      alert("⚠️ Product not added. Try again.");
-    }
-  })
-  .catch((err) => {
-    console.error("Add failed", err.message || err);
-    alert("❌ Server error: " + (err.message || "Please try again."));
-  });
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const name = formData.get("name");
+    const category = formData.get("category");
+    const price = parseFloat(formData.get("price"));
+
+    const newProduct = {
+      name,
+      category,
+      price,
+      vendor_id: parseInt(vendorId),
+    };
 
     fetch("http://127.0.0.1:80/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newProduct),
     })
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          const error = await res.text();
+          throw new Error(error || "Unknown error");
+        }
+        return res.json();
+      })
       .then((data) => {
         if (data.id) {
           setProducts((prev) => [...prev, { ...newProduct, id: data.id }]);
@@ -72,8 +66,8 @@ export default function VendorDashboard() {
         }
       })
       .catch((err) => {
-        console.error("Add failed", err);
-        alert("❌ Server error. Please try again.");
+        console.error("Add failed", err.message || err);
+        alert("❌ Server error: " + (err.message || "Please try again."));
       });
   };
 
