@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 
 export default function VendorDashboard() {
   const [products, setProducts] = useState([]);
-  const [vendorId, setVendorId] = useState(1);
-  const [darkMode, setDarkMode] = useState(false);
+  const [vendorId, setVendorId] = useState(1); // Default vendor
 
   useEffect(() => {
     fetch(`http://127.0.0.1:80/vendor/${vendorId}/products`)
@@ -14,6 +13,7 @@ export default function VendorDashboard() {
 
   const handleEdit = (product) => {
     alert(`Edit product: ${product.name}`);
+    // Coming soon: Modal or inline form
   };
 
   const handleDelete = (id) => {
@@ -65,17 +65,11 @@ export default function VendorDashboard() {
   };
 
   return (
-    <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"} min-h-screen p-6`}>
-      <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">📦 Vendor Product Dashboard</h1>
-          <button
-            className="px-3 py-1 rounded bg-gray-300 dark:bg-gray-700 dark:text-white hover:bg-gray-400"
-            onClick={() => setDarkMode(!darkMode)}
-          >
-            {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
-          </button>
-        </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 text-gray-900 dark:text-gray-100">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-6">
+          📦 Vendor Product Dashboard
+        </h1>
 
         <div className="mb-6">
           <label htmlFor="vendorId" className="block mb-2 text-sm font-medium">
@@ -86,12 +80,12 @@ export default function VendorDashboard() {
             id="vendorId"
             value={vendorId}
             onChange={(e) => setVendorId(e.target.value)}
-            className="w-32 border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring focus:border-blue-500"
+            className="w-32 border border-gray-300 dark:border-gray-700 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring focus:border-blue-500 bg-white dark:bg-gray-800"
           />
         </div>
 
         {/* Add Product Form */}
-        <div className="mb-10 border p-4 rounded-xl bg-white shadow dark:bg-gray-800">
+        <div className="mb-10 border p-4 rounded-xl bg-white dark:bg-gray-800 shadow">
           <h2 className="text-lg font-semibold mb-4">➕ Add New Product</h2>
           <form onSubmit={handleAddProduct}>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
@@ -100,14 +94,14 @@ export default function VendorDashboard() {
                 type="text"
                 placeholder="Product Name"
                 required
-                className="border p-2 rounded text-black"
+                className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600"
               />
               <input
                 name="category"
                 type="text"
                 placeholder="Category"
                 required
-                className="border p-2 rounded text-black"
+                className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600"
               />
               <input
                 name="price"
@@ -115,7 +109,7 @@ export default function VendorDashboard() {
                 step="0.01"
                 placeholder="Price"
                 required
-                className="border p-2 rounded text-black"
+                className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600"
               />
             </div>
             <button
@@ -135,20 +129,23 @@ export default function VendorDashboard() {
               className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow hover:shadow-md transition flex flex-col justify-between"
             >
               <div>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">{product.name}</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-300">{product.category}</p>
-                <p className="text-lg font-bold mt-2 text-blue-600">R{product.price.toFixed(2)}</p>
+                <h2 className="text-xl font-semibold">{product.name}</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{product.category}</p>
+                <p className="text-lg font-bold mt-2 text-blue-600 dark:text-blue-400">
+                  R{product.price.toFixed(2)}
+                </p>
               </div>
+
               <div className="mt-4 flex gap-2">
                 <button
+                  className="flex-1 px-3 py-2 text-sm font-medium bg-yellow-100 dark:bg-yellow-300 text-yellow-700 rounded hover:bg-yellow-200"
                   onClick={() => handleEdit(product)}
-                  className="flex-1 px-3 py-2 text-sm font-medium bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200"
                 >
                   ✏️ Edit
                 </button>
                 <button
+                  className="flex-1 px-3 py-2 text-sm font-medium bg-red-100 dark:bg-red-300 text-red-700 rounded hover:bg-red-200"
                   onClick={() => handleDelete(product.id)}
-                  className="flex-1 px-3 py-2 text-sm font-medium bg-red-100 text-red-700 rounded hover:bg-red-200"
                 >
                   🗑️ Delete
                 </button>
@@ -158,7 +155,7 @@ export default function VendorDashboard() {
         </div>
 
         {products.length === 0 && (
-          <p className="text-center text-gray-500 mt-10">
+          <p className="text-center text-gray-500 dark:text-gray-400 mt-10">
             No products found for vendor ID {vendorId}
           </p>
         )}
